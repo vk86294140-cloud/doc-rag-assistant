@@ -1,0 +1,2 @@
+[console_scripts]
+rag-ingest = ragassistant.ingest:main

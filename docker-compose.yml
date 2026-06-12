@@ -1,0 +1,13 @@
+services:
+  rag:
+    build: .
+    image: doc-rag-assistant:latest
+    ports:
+      - "8000:8000"
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+    volumes:
+      - rag_store:/app/.rag_store
+
+volumes:
+  rag_store:
