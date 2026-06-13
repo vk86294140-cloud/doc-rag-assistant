@@ -33,6 +33,15 @@ class VectorStore:
     def __len__(self) -> int:
         return len(self._texts)
 
+    def sources(self) -> List[str]:
+        """Sorted unique document sources currently indexed."""
+        seen: List[str] = []
+        for m in self._metadatas:
+            src = m.get("source")
+            if src and src not in seen:
+                seen.append(src)
+        return sorted(seen)
+
     def add(self, texts: List[str], embeddings: np.ndarray, metadatas: List[Dict]) -> None:
         if not texts:
             return

@@ -39,6 +39,13 @@ def health() -> dict:
     return {"status": "ok", "version": __version__, "indexed_chunks": len(engine.store)}
 
 
+@app.get("/stats")
+def stats() -> dict:
+    """Index size: number of distinct documents and total chunks."""
+    srcs = engine.store.sources()
+    return {"documents": len(srcs), "chunks": len(engine.store), "sources": srcs}
+
+
 @app.post("/ingest", response_model=IngestResponse)
 def ingest(req: IngestTextRequest) -> IngestResponse:
     added = engine.ingest_text(req.text, req.source)
