@@ -45,3 +45,14 @@ def test_ingest_then_query(client):
 def test_query_validation_error(client):
     resp = client.post("/query", json={"question": "", "top_k": 2})
     assert resp.status_code == 422
+
+
+def test_stats(client):
+    client.post("/ingest", json={"source": "a.md", "text": "Alpha content here for indexing."})
+    client.post("/ingest", json={"source": "b.md", "text": "Beta content here for indexing."})
+    resp = client.get("/stats")
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["documents"] == 2
+    assert body["chunks"] >= 2
+    assert "a.md" in body["sources"]
