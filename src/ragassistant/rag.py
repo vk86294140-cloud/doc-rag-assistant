@@ -70,6 +70,10 @@ class RAGEngine:
                 total += self.ingest_text(file.read_text(encoding="utf-8"), file.name)
         return total
 
+    def delete_source(self, source: str) -> int:
+        """Drop a document and all its chunks from the index. Returns the count."""
+        return self.store.delete(source)
+
     # --- retrieval + generation -------------------------------------------
 
     def retrieve(self, question: str, top_k: int | None = None) -> List[Match]:
