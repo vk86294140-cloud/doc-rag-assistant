@@ -55,6 +55,22 @@ class VectorStore:
             else np.vstack([self._vectors, embeddings.astype(np.float32)])
         )
 
+    def delete(self, source: str) -> int:
+        """Remove every chunk belonging to `source`. Returns how many were dropped.
+
+        Rebuilds the parallel text/metadata lists and the vector matrix from the
+        surviving rows so the store stays internally consistent and immediately
+        searchable. No-op (returns 0) if the source isn't indexed.
+        """
+        keep = [i for i, m in enumerate(self._metadatas) if m.get("source") != source]
+        removed = len(self._texts) - len(keep)
+        if removed == 0:
+            return 0
+        self._texts = [self._texts[i] for i in keep]
+        self._metadatas = [self._metadatas[i] for i in keep]
+        self._vectors = self._vectors[keep] if keep else None
+        return removed
+
     def query(self, embedding: np.ndarray, top_k: int = 4) -> List[Match]:
         if self._vectors is None or len(self._texts) == 0:
             return []

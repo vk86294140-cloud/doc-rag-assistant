@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 
 from . import __version__
@@ -12,6 +12,7 @@ from .config import settings
 from .rag import RAGEngine
 from .schema import (
     CitationModel,
+    DeleteResponse,
     IngestResponse,
     IngestTextRequest,
     QueryRequest,
@@ -52,6 +53,18 @@ def ingest(req: IngestTextRequest) -> IngestResponse:
     engine.save()
     return IngestResponse(
         source=req.source, chunks_added=added, total_chunks=len(engine.store)
+    )
+
+
+@app.delete("/documents/{source}", response_model=DeleteResponse)
+def delete_document(source: str) -> DeleteResponse:
+    """Remove an indexed document and all its chunks. 404 if it isn't indexed."""
+    removed = engine.delete_source(source)
+    if removed == 0:
+        raise HTTPException(status_code=404, detail=f"No indexed document named {source!r}")
+    engine.save()
+    return DeleteResponse(
+        source=source, chunks_removed=removed, total_chunks=len(engine.store)
     )
 
 

@@ -18,6 +18,12 @@ class IngestResponse(BaseModel):
     total_chunks: int
 
 
+class DeleteResponse(BaseModel):
+    source: str
+    chunks_removed: int
+    total_chunks: int
+
+
 class QueryRequest(BaseModel):
     question: str = Field(..., min_length=1, examples=["What is the refund policy?"])
     top_k: int = Field(4, ge=1, le=20)

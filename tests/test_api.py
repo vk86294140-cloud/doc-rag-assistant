@@ -56,3 +56,22 @@ def test_stats(client):
     assert body["documents"] == 2
     assert body["chunks"] >= 2
     assert "a.md" in body["sources"]
+
+
+def test_delete_document(client):
+    client.post("/ingest", json={"source": "a.md", "text": "Alpha content for indexing."})
+    client.post("/ingest", json={"source": "b.md", "text": "Beta content for indexing."})
+
+    resp = client.delete("/documents/a.md")
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["source"] == "a.md" and body["chunks_removed"] >= 1
+
+    stats = client.get("/stats").json()
+    assert "a.md" not in stats["sources"]
+    assert "b.md" in stats["sources"]
+
+
+def test_delete_unknown_document_404(client):
+    resp = client.delete("/documents/nope.md")
+    assert resp.status_code == 404

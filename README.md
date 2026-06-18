@@ -72,6 +72,7 @@ curl -s http://localhost:8000/query -H "Content-Type: application/json" -d '{
 | `GET` | `/health` | liveness + number of indexed chunks |
 | `POST` | `/ingest` | add a document (`{source, text}`) to the index |
 | `POST` | `/query` | ask a question, get a grounded answer + citations |
+| `DELETE` | `/documents/{source}` | remove a document and all its chunks |
 | `GET` | `/` | minimal chat UI |
 | `GET` | `/docs` | OpenAPI docs |
 

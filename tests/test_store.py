@@ -39,3 +39,27 @@ def test_empty_store_returns_no_matches():
     store = VectorStore(dim=1024)
     emb = HashingEmbedder(dim=1024)
     assert store.query(emb.embed(["anything"])[0]) == []
+
+
+def test_delete_removes_only_target_source():
+    emb = HashingEmbedder(dim=1024)
+    store = VectorStore(dim=1024)
+    a = ["alpha one", "alpha two"]
+    b = ["beta one"]
+    store.add(a, emb.embed(a), [{"source": "a", "chunk_index": i} for i in range(2)])
+    store.add(b, emb.embed(b), [{"source": "b", "chunk_index": 0}])
+
+    removed = store.delete("a")
+    assert removed == 2
+    assert len(store) == 1
+    assert store.sources() == ["b"]
+    # the surviving vector is still searchable and aligned with its text
+    match = store.query(emb.embed(["beta"])[0], top_k=1)[0]
+    assert match.metadata["source"] == "b"
+
+
+def test_delete_unknown_source_is_noop():
+    emb, store = _populate()
+    before = len(store)
+    assert store.delete("does-not-exist") == 0
+    assert len(store) == before
